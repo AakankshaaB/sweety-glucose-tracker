@@ -6,9 +6,14 @@ const reportsRoutes = require('./routes/reports');
 
 const app = express();
 
+const allowedOrigin = (process.env.CLIENT_URL || 'http://localhost:5173').replace(
+  /\/+$/,
+  ''
+);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: allowedOrigin,
   })
 );
 app.use(express.json());
