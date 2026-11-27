@@ -2,7 +2,7 @@ const request = require('supertest');
 const app = require('../app');
 const db = require('../db');
 
-// Lightweight in-memory mock of db.query so route tests run without a local Postgres instance
+
 jest.mock('../db', () => {
   let users = [];
   let readings = [];
