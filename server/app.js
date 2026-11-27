@@ -6,14 +6,23 @@ const reportsRoutes = require('./routes/reports');
 
 const app = express();
 
-const allowedOrigin = (process.env.CLIENT_URL || 'http://localhost:5173').replace(
-  /\/+$/,
-  ''
-);
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://sweety-glucose-tracker-swart.vercel.app',
+  ...(process.env.CLIENT_URL || '').split(','),
+]
+  .map((url) => url.trim().replace(/\/+$/, ''))
+  .filter(Boolean);
 
 app.use(
   cors({
-    origin: allowedOrigin,
+    origin: (origin, callback) => {
+      // allow tools like curl/Postman (no Origin header)
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
   })
 );
 app.use(express.json());

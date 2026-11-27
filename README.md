@@ -1,27 +1,26 @@
-# Sweety – Blood Glucose Tracker
+# Sweety - Blood Glucose Tracker
 
-Sweety is a web application for diabetes patients to log up to 4 blood glucose readings per day and review daily, month-to-date, and previous-month summary reports.
+A small full-stack web app for diabetes patients to record up to 4 blood glucose readings per day and check daily, month-to-date, and previous-month summary reports.
 
 ## Tech Stack
 
-- **Backend:** Node.js, Express, PostgreSQL (`pg`), `bcryptjs`, `jsonwebtoken`
-- **Frontend:** React, Vite, React Router
-- **Testing:** Jest + Supertest (backend), Vitest + React Testing Library (frontend)
+- Backend: Node.js, Express, PostgreSQL (`pg`), `bcryptjs`, `jsonwebtoken`
+- Frontend: React, Vite, React Router
+- Tests: Jest + Supertest (backend), Vitest + React Testing Library (frontend)
 
 ## Project Structure
 
 ```text
 sweety/
-├── server/          # Express API, PostgreSQL schema, seed script, and tests
-└── client/          # React frontend and component tests
+├── server/   # Express API, SQL schema, seed script, and backend tests
+└── client/   # React app and form tests
 ```
 
-## Prerequisites
+## Setup
 
-- Node.js 18 or newer
-- PostgreSQL 14 or newer
+You will need Node.js (v18+) and PostgreSQL (v14+) installed.
 
-## 1. Install Dependencies
+### 1. Install packages
 
 ```bash
 cd server
@@ -31,75 +30,77 @@ cd ../client
 npm install
 ```
 
-## 2. Database Setup
+### 2. Set up the database
 
-1. Create a PostgreSQL database named `sweety`:
+Create a PostgreSQL database named `sweety`:
 
 ```bash
 createdb sweety
 ```
 
-2. Run the schema file to create the `users` and `readings` tables:
+Create the tables using the schema file:
 
 ```bash
 psql -d sweety -f server/db/schema.sql
 ```
 
-3. Copy the environment example files and update them with your local values:
+Copy the example env files and fill in your local values:
 
 ```bash
 cp server/.env.example server/.env
 cp client/.env.example client/.env
 ```
 
-In `server/.env`:
-- `PORT`: API server port (default `5000`)
-- `DATABASE_URL`: PostgreSQL connection string, e.g. `postgresql://postgres:your_password@localhost:5432/sweety`
-- `JWT_SECRET`: any long random string used to sign login tokens
-- `CLIENT_URL`: frontend origin for CORS (default `http://localhost:5173`)
+Variables in `server/.env`:
+- `PORT` - port for the Express server (default `5000`)
+- `DATABASE_URL` - Postgres connection string, e.g. `postgresql://postgres:your_password@localhost:5432/sweety`
+- `JWT_SECRET` - secret string used to sign JWT tokens
+- `CLIENT_URL` - frontend URL for CORS (default `http://localhost:5173`)
 
-In `client/.env`:
-- `VITE_API_URL`: backend API base URL (default `http://localhost:5000/api`)
+Variables in `client/.env`:
+- `VITE_API_URL` - backend API URL (default `http://localhost:5000/api`)
 
-4. Seed a demo account and sample readings:
+### 3. Seed sample data
+
+Run the seed script to create a demo user and sample readings for the current and previous month:
 
 ```bash
 cd server
 npm run seed
 ```
 
-Demo login credentials created by the seed script:
-- **Email:** `maya@example.com`
-- **Password:** `password123`
+Demo account credentials:
+- Email: `maya@example.com`
+- Password: `password123`
 
-## 3. Running the App
+## Running Locally
 
-Start the backend API (from `server/`):
+Start the backend in one terminal:
 
 ```bash
 cd server
 npm run dev
 ```
 
-Start the React frontend (from `client/` in another terminal):
+Start the frontend in another terminal:
 
 ```bash
 cd client
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser.
+Then open `http://localhost:5173`.
 
-## 4. Running Tests
+## Running Tests
 
-Backend tests (validation, date range logic, and API routes):
+Backend tests:
 
 ```bash
 cd server
 npm test
 ```
 
-Frontend tests (`ReadingForm` validation and submission):
+Frontend tests:
 
 ```bash
 cd client
@@ -109,13 +110,13 @@ npm test
 ## Notes
 
 ### Assumptions
-- **Dates without timezone drift:** Readings are stored in PostgreSQL as `DATE` (`YYYY-MM-DD`) and returned directly as date strings so a reading logged for a specific day never shifts across timezones.
-- **"Today" check:** Future-date validation compares against the user's current local calendar date (`YYYY-MM-DD`).
-- **Four daily slots:** Only the four required slots (`Morning (fasting)`, `After breakfast`, `After lunch`, `After dinner`) are allowed, with at most one reading per slot per day and 4 readings per day total.
-- **Included extras:** Added pagination (`?page=1&limit=20`) on `GET /api/readings` and React Testing Library unit tests for the reading form.
+- Dates are stored in PostgreSQL as `DATE` (`YYYY-MM-DD`) and returned directly as strings (via a `pg` type parser) so timezone offsets do not shift a reading to the previous or next day.
+- Future-date checks compare against the user's local calendar date (`YYYY-MM-DD`).
+- Only the 4 specified time slots are allowed (`Morning (fasting)`, `After breakfast`, `After lunch`, `After dinner`), with 1 reading per slot per day and a max of 4 readings per day.
+- I also added pagination (`?page=1&limit=20`) on `GET /api/readings` and React Testing Library tests for `ReadingForm` from the bonus section.
 
 ### What I would improve with more time
-- Add a monthly trend line chart on the dashboard using Recharts so patients can spot patterns visually.
-- Add CSV/PDF export for monthly reports to share with a doctor.
-- Run integration tests against a dedicated test PostgreSQL database in CI (currently route tests use an in-memory mock for `db.query` so they run anywhere without requiring a running Postgres service).
-- Add password reset and email verification flows.
+- Add a monthly trend line chart using Recharts so changes over the month are easier to see.
+- Add CSV or PDF export for reports.
+- Run API tests against a real test PostgreSQL database in CI instead of an in-memory `db.query` mock.
+- Add forgot-password / email verification flows.
